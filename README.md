@@ -1,2 +1,3 @@
 # Cult of the Lamb Save Decryptor
-Site to decrypt save files for modification in the game Cult of the Lamb
+This is a site that allows you to modify your save game at will, as usually the save game is encrypted and you can not modify it. 
+Feel free to open an issue/pull request if you have any problems or suggestions, I'll be happy to take a look.
