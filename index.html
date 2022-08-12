@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Cult of the Lamb - Tier 3 Bug Save Fixer</h1>
+<p>Upload your save file below and you will automatically download the fixed version of your file. Replace it and enjoy!</p>
+<p>Save file location for Windows: C:\Users\(YOUR USERNAME)\AppData\LocalLow\Massive Monster\Cult Of The Lamb\saves</p>
+<form runat="server">
+    <input type='file' id="file" />
+</form>
+
+
+<p> Made with love by Pentalex / Alex#4160 </p>
+
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script type="text/javascript" src="https://cdn.rawgit.com/ricmoo/aes-js/e27b99df/index.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
+
+
+<script>
+      
+
+
+
+      document.getElementById('file').addEventListener('change', handleFileSelect, false);
+      function handleFileSelect(event) {
+        const reader = new FileReader()
+        reader.readAsArrayBuffer(event.target.files[0]);
+        function byteArrayToWordArray(ba) {
+          var wa = [],
+            i;
+          for (i = 0; i < ba.length; i++) {
+            wa[(i / 4) | 0] |= ba[i] << (24 - 8 * i);
+          }
+
+          return CryptoJS.lib.WordArray.create(wa, ba.length);
+        }
+        function wordToByteArray(word, length) {
+          var ba = [],
+            i,
+            xFF = 0xFF;
+          if (length > 0)
+            ba.push(word >>> 24);
+          if (length > 1)
+            ba.push((word >>> 16) & xFF);
+          if (length > 2)
+            ba.push((word >>> 8) & xFF);
+          if (length > 3)
+            ba.push(word & xFF);
+
+          return ba;
+        }
+        function toHexString(byteArray) {
+          return Array.from(byteArray, function(byte) {
+            return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+          }).join('')
+        }
+        function arrayBufferToWordArray(ab) {
+          var i8a = new Uint8Array(ab);
+          var a = [];
+          for (var i = 0; i < i8a.length; i += 4) {
+            a.push(i8a[i] << 24 | i8a[i + 1] << 16 | i8a[i + 2] << 8 | i8a[i + 3]);
+          }
+          return CryptoJS.lib.WordArray.create(a, i8a.length);
+        }
+        const fromHex = hexString => new Uint8Array(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+
+
+        reader.onerror = function(error) {
+          console.log(error)
+        };
+        reader.onload = async function(){
+            var arrayResult = reader.result
+            var bytes = new Uint8Array(arrayResult);
+
+            var keyBytes = bytes.slice(1, 17)
+            var IVBytes = bytes.slice(17, 33)
+
+            var keyBuffer = arrayResult.slice(1, 17)
+            var IVBuffer = arrayResult.slice(17, 33)
+            var stringHex = toHexString(bytes)
+
+            var newBytes = bytes.slice(1, bytes.length)
+            var aesCbc = new aesjs.ModeOfOperation.cbc(keyBytes, IVBytes);
+            var decryptedBytes = aesCbc.decrypt(newBytes);
+
+            // Convert our bytes back into text
+            var newDecryptedBytes = decryptedBytes.slice(32, decryptedBytes.length - 1)
+            var decryptedText = aesjs.utils.utf8.fromBytes(newDecryptedBytes);
+            console.log(decryptedText);
+            const obj = JSON.parse(decryptedText)
+            obj.CurrentUpgradeTreeTier = 2
+
+           
+            var fileName = 'slot_0.json';
+
+            // Create a blob of the data
+            var fileToSave = new Blob([JSON.stringify(obj)], {
+                type: 'application/json'
+            });
+
+            // Save the file
+            saveAs(fileToSave, fileName);
+
+
+          
+
+        }
+        
+        }
+
+</script>
+</html>
