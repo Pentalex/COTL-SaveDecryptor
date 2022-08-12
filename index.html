@@ -24,8 +24,9 @@
             <p class="mb-4 text-muted">Upload your save file below and you will automatically download the decrypted version of your file that you can then edit to your hearts content with Notepad++ or any other tool. After you're done, replace your old save file and enjoy!</p>
           </div>
           <label>Save file location Windows:</label>
-          <pre><kbd>C:\Users\(YOUR USERNAME)\AppData\LocalLow\Massive Monster\Cult Of The Lamb\saves</kbd></pre>
-        
+          <pre><kbd>C:\Users\%USERPROFILE%\AppData\LocalLow\Massive Monster\Cult Of The Lamb\saves</kbd></pre>
+          
+
           <form id="contactForm" data-sb-form-api-token="API_TOKEN">
           <form runat="server">
               <input type='file' id="file" />
@@ -125,13 +126,11 @@
             var decryptedBytes = aesCbc.decrypt(newBytes);
 
             // Convert our bytes back into text
-            var newDecryptedBytes = decryptedBytes.slice(32, decryptedBytes.length - 1)
-            var decryptedText = aesjs.utils.utf8.fromBytes(newDecryptedBytes);
-            console.log(decryptedText);
+            var newDecryptedBytes = decryptedBytes.slice(32, decryptedBytes.length)
+            var unpaddedBytes = aesjs.padding.pkcs7.strip(newDecryptedBytes)
+            var decryptedText = aesjs.utils.utf8.fromBytes(unpaddedBytes);
             const obj = JSON.parse(decryptedText)
-            
 
-           
             var fileName = 'slot_0.json';
 
             // Create a blob of the data
